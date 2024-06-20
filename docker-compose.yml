@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  user_service_db:
+    image: postgres:latest
+    container_name: user_service_db
+    ports:
+      - 41005:5432
+    environment:
+      POSTGRES_PORT: 5432
+      POSTGRES_HOST: localhost
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: user_service_db
+    volumes:
+      - user-service-data:/var/lib/postgresql/data
+    networks:
+      - miro-whiteboard-network
+
+networks:
+  miro-whiteboard-network:
+    driver: bridge
+
+volumes:
+  user-service-data:
