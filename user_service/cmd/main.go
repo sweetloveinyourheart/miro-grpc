@@ -5,19 +5,20 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
 
 	_ "github.com/joho/godotenv/autoload"
-	pb "github.com/sweetloveinyourheart/miro-whiteboard/common/api"
-	"github.com/sweetloveinyourheart/miro-whiteboard/user_service/internal/server"
 	"google.golang.org/grpc"
+
+	pb "github.com/sweetloveinyourheart/miro-whiteboard/common/api"
+	configs "github.com/sweetloveinyourheart/miro-whiteboard/common/configs"
+	"github.com/sweetloveinyourheart/miro-whiteboard/user_service/internal/server"
 )
 
 func main() {
-	serverPost := os.Getenv("SERVER_PORT")
+	serverPost := configs.GetGRPCConfig().UserServicePort
 
 	flag.Parse()
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", serverPost))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", serverPost))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
