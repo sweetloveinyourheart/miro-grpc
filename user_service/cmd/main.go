@@ -24,7 +24,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterUserServiceServer(s, &server.RPCServer{})
+	pb.RegisterUserServiceServer(s, &server.Server{})
 
 	log.Printf("server listening at %v", lis.Addr())
 

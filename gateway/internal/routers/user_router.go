@@ -6,9 +6,9 @@ import (
 	"github.com/sweetloveinyourheart/miro-whiteboard/gateway/internal/handlers"
 )
 
-func CreateUserRouters(r fiber.Router, c pb.UserServiceClient) {
+func CreateUserRouters(r fiber.Router, c *pb.UserServiceClient) {
 	routes := r.Group("/users")
-	userHandler := handlers.NewUserHandler()
+	userHandler := handlers.NewUserHandler(c)
 
-	routes.Get("/register", userHandler.Register)
+	routes.Post("/register", userHandler.Register)
 }

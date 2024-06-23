@@ -11,7 +11,7 @@ import (
 func main() {
 	app := fiber.New()
 
-	v1Routers := app.Group("v1")
+	v1Routers := app.Group("/api/v1")
 
 	// Create gRPC clients
 	userServiceClient, userServiceConn, err := clients.NewUserServiceClient()
@@ -22,7 +22,7 @@ func main() {
 	}
 
 	// Create routers
-	routers.CreateUserRouters(v1Routers, userServiceClient)
+	routers.CreateUserRouters(v1Routers, &userServiceClient)
 
 	app.Listen(":9000")
 }
