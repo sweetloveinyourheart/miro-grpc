@@ -1,12 +1,15 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
 	"log"
 	"net"
+	"os"
 
 	_ "github.com/joho/godotenv/autoload"
+	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
 
 	pb "github.com/sweetloveinyourheart/miro-whiteboard/common/api"
@@ -23,8 +26,16 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
+	connStr := os.Getenv("POSTGRESQL_CONN")
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
 	s := grpc.NewServer()
-	pb.RegisterUserServiceServer(s, &server.Server{})
+	svc := server.CreateUserServer(db)
+	pb.RegisterUserServiceServer(s, svc)
 
 	log.Printf("server listening at %v", lis.Addr())
 
