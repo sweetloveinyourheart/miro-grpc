@@ -37,7 +37,7 @@ func (sv *UserServices) CreateNewUser(newUser NewUser) (bool, error) {
 	ctx := context.Background()
 
 	_, err := sv.queries.GetUserByEmail(ctx, newUser.Email)
-	if err != nil {
+	if err == nil {
 		return false, nil
 	}
 
