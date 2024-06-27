@@ -2,6 +2,11 @@
 SELECT * FROM users
 WHERE user_id = $1 LIMIT 1;
 
+-- name: GetUserInfoWithCredentials :one
+SELECT users.email as email, user_credentials.password_hash as pwd FROM users
+INNER JOIN user_credentials ON users.user_id = user_credentials.user_id
+WHERE users.email = $1 LIMIT 1;
+
 -- name: GetUserByEmail :one
 SELECT * FROM users
 WHERE email = $1 LIMIT 1;

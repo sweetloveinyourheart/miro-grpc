@@ -5,12 +5,13 @@ import (
 	"database/sql"
 
 	database "github.com/sweetloveinyourheart/miro-whiteboard/user_service/internal/db"
+	"github.com/sweetloveinyourheart/miro-whiteboard/user_service/internal/repository"
 	"github.com/sweetloveinyourheart/miro-whiteboard/user_service/internal/utils"
 )
 
 type UserServices struct {
-	db      *sql.DB
-	queries IQueries
+	db         *sql.DB
+	repository repository.UserRepository
 }
 
 type IUserServices interface {
@@ -24,31 +25,19 @@ type NewUser struct {
 	Password  string
 }
 
-type IQueries interface {
-	CreateUser(ctx context.Context, arg database.CreateUserParams) (int32, error)
-	CreateUserCredential(ctx context.Context, arg database.CreateUserCredentialParams) error
-	GetUser(ctx context.Context, userID int32) (database.User, error)
-	GetUserByEmail(ctx context.Context, email string) (database.User, error)
-}
-
-func newQueries(db *sql.DB) IQueries {
-	queries := database.New(db)
-	return queries
-}
-
 func CreateUserService(db *sql.DB) IUserServices {
-	queries := newQueries(db)
+	repository := repository.NewUserRepository(db)
 
 	return &UserServices{
 		db,
-		queries,
+		repository,
 	}
 }
 
 func (sv *UserServices) CreateNewUser(newUser NewUser) (bool, error) {
 	ctx := context.Background()
 
-	_, err := sv.queries.GetUserByEmail(ctx, newUser.Email)
+	_, err := sv.repository.GetUserByEmail(ctx, newUser.Email)
 	if err == nil {
 		return false, nil
 	}
@@ -63,7 +52,7 @@ func (sv *UserServices) CreateNewUser(newUser NewUser) (bool, error) {
 		FirstName: utils.ToNullString(newUser.FirstName),
 		LastName:  utils.ToNullString(newUser.LastName),
 	}
-	userId, userErr := sv.queries.CreateUser(ctx, newUserRecord)
+	userId, userErr := sv.repository.CreateUser(ctx, newUserRecord)
 	if userErr != nil {
 		return false, userErr
 	}
@@ -72,7 +61,7 @@ func (sv *UserServices) CreateNewUser(newUser NewUser) (bool, error) {
 		UserID:       userId,
 		PasswordHash: passwordHash,
 	}
-	userCredentialErr := sv.queries.CreateUserCredential(ctx, newUserCredential)
+	userCredentialErr := sv.repository.CreateUserCredential(ctx, newUserCredential)
 	if userCredentialErr != nil {
 		return false, userCredentialErr
 	}

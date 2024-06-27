@@ -81,3 +81,21 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	)
 	return i, err
 }
+
+const getUserInfoWithCredentials = `-- name: GetUserInfoWithCredentials :one
+SELECT users.email as email, user_credentials.password_hash as pwd FROM users
+INNER JOIN user_credentials ON users.user_id = user_credentials.user_id
+WHERE users.email = $1 LIMIT 1
+`
+
+type GetUserInfoWithCredentialsRow struct {
+	Email string
+	Pwd   string
+}
+
+func (q *Queries) GetUserInfoWithCredentials(ctx context.Context, email string) (GetUserInfoWithCredentialsRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserInfoWithCredentials, email)
+	var i GetUserInfoWithCredentialsRow
+	err := row.Scan(&i.Email, &i.Pwd)
+	return i, err
+}
