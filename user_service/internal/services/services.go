@@ -10,7 +10,7 @@ import (
 
 type UserServices struct {
 	db      *sql.DB
-	queries *database.Queries
+	queries IQueries
 }
 
 type IUserServices interface {
@@ -24,8 +24,20 @@ type NewUser struct {
 	Password  string
 }
 
-func CreateUserService(db *sql.DB) IUserServices {
+type IQueries interface {
+	CreateUser(ctx context.Context, arg database.CreateUserParams) (int32, error)
+	CreateUserCredential(ctx context.Context, arg database.CreateUserCredentialParams) error
+	GetUser(ctx context.Context, userID int32) (database.User, error)
+	GetUserByEmail(ctx context.Context, email string) (database.User, error)
+}
+
+func newQueries(db *sql.DB) IQueries {
 	queries := database.New(db)
+	return queries
+}
+
+func CreateUserService(db *sql.DB) IUserServices {
+	queries := newQueries(db)
 
 	return &UserServices{
 		db,
