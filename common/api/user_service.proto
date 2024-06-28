@@ -4,7 +4,8 @@ option go_package = "github.com/Sweetloveinyourheart/miro-whiteboard-grpc/protoc
 
 service UserService {
     rpc Register (RegisterRequest) returns (RegisterResponse) {}
-  }
+    rpc SignIn (SignInRequest) returns (SignInResponse) {}
+}
   
 message RegisterRequest {
     string first_name = 1;
@@ -16,4 +17,14 @@ message RegisterRequest {
 message RegisterResponse {
     bool success = 1;
     string message = 2;
+}
+
+message SignInRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message SignInResponse {
+    string access_token = 1;
+    string refresh_token = 2;
 }

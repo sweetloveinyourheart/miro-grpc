@@ -1,8 +1,17 @@
 package utils
 
 import (
+	"os"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type Claims struct {
+	Email string `json:"email"`
+	jwt.RegisteredClaims
+}
 
 func HashPassword(password string) (string, error) {
 	// GenerateFromPassword creates a hashed password with a default cost
@@ -17,4 +26,25 @@ func CheckPasswordHash(password, hashedPassword string) bool {
 	// CompareHashAndPassword compares the hashed password with its possible plaintext equivalent
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	return err == nil
+}
+
+// Generate JWT tokens
+func GenerateToken(email string, expirationTime time.Duration) (string, error) {
+	jwtSecret := os.Getenv("JWT_SECRET")
+
+	expiration := time.Now().Add(expirationTime)
+	claims := &Claims{
+		Email: email,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expiration),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }

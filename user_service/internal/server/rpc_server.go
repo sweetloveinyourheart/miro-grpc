@@ -53,3 +53,22 @@ func (s *Server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regi
 
 	return &response, nil
 }
+
+func (s *Server) SignIn(ctx context.Context, in *pb.SignInRequest) (*pb.SignInResponse, error) {
+	user := services.UserCredential{
+		Email:    in.Email,
+		Password: in.Password,
+	}
+
+	credentials, err := s.svc.GetAuthCredentials(user)
+	if err != nil {
+		return &pb.SignInResponse{}, err
+	}
+
+	response := pb.SignInResponse{
+		AccessToken:  credentials.AccessToken,
+		RefreshToken: credentials.RefreshToken,
+	}
+
+	return &response, nil
+}

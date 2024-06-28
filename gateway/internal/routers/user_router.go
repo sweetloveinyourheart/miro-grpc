@@ -11,4 +11,5 @@ func CreateUserRouters(r fiber.Router, c *pb.UserServiceClient) {
 	userHandler := handlers.NewUserHandler(c)
 
 	routes.Post("/register", userHandler.Register)
+	routes.Post("/sign-in", userHandler.SignIn)
 }
