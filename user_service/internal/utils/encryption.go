@@ -7,8 +7,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	configs "github.com/sweetloveinyourheart/miro-whiteboard/common/configs"
-	types "github.com/sweetloveinyourheart/miro-whiteboard/common/types"
 )
+
+type Claims struct {
+	Email string `json:"email"`
+	jwt.RegisteredClaims
+}
 
 func HashPassword(password string) (string, error) {
 	// GenerateFromPassword creates a hashed password with a default cost
@@ -30,7 +34,7 @@ func GenerateToken(email string, expirationTime time.Duration) (string, error) {
 	jwtSecret := configs.GetAuthConfig().JwtSecret
 
 	expiration := time.Now().Add(expirationTime)
-	claims := &types.Claims{
+	claims := &Claims{
 		Email: email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiration),
