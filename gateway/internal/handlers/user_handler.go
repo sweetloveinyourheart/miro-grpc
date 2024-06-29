@@ -18,6 +18,7 @@ type UserHandler struct {
 type IUserHandler interface {
 	Register(c *fiber.Ctx) error
 	SignIn(c *fiber.Ctx) error
+	GetProfile(c *fiber.Ctx) error
 }
 
 func NewUserHandler(client *pb.UserServiceClient) IUserHandler {
@@ -101,6 +102,26 @@ func (h *UserHandler) SignIn(ctx *fiber.Ctx) error {
 	response := responses.SignInResponseData{
 		AccessToken:  result.AccessToken,
 		RefreshToken: result.RefreshToken,
+	}
+	return ctx.Status(200).JSON(response)
+}
+
+func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
+	user := ctx.Get("user")
+
+	grpcContext := context.Background()
+	grpcReq := pb.GetProfileRequest{
+		Email: user,
+	}
+	grpcRes, err := h.c.GetProfile(grpcContext, &grpcReq)
+	if err != nil {
+		return ctx.SendStatus(403)
+	}
+
+	response := responses.UserProfileResponseData{
+		FirstName: grpcRes.FirstName,
+		LastName:  grpcRes.LastName,
+		Email:     grpcRes.Email,
 	}
 	return ctx.Status(200).JSON(response)
 }

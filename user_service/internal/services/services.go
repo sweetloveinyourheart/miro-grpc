@@ -17,8 +17,9 @@ type UserServices struct {
 }
 
 type IUserServices interface {
-	CreateNewUser(newUser NewUser) (bool, error)
+	CreateNewUser(newUser User) (bool, error)
 	GetAuthCredentials(user UserCredential) (AuthenticationCredential, error)
+	GetUserInfo(email string) (User, error)
 }
 
 func CreateUserService(db *sql.DB) IUserServices {
@@ -30,7 +31,7 @@ func CreateUserService(db *sql.DB) IUserServices {
 	}
 }
 
-type NewUser struct {
+type User struct {
 	FirstName string
 	LastName  string
 	Email     string
@@ -47,7 +48,7 @@ type AuthenticationCredential struct {
 	RefreshToken string
 }
 
-func (sv *UserServices) CreateNewUser(newUser NewUser) (bool, error) {
+func (sv *UserServices) CreateNewUser(newUser User) (bool, error) {
 	ctx := context.Background()
 
 	_, err := sv.repository.GetUserByEmail(ctx, newUser.Email)
@@ -108,5 +109,20 @@ func (sv *UserServices) GetAuthCredentials(user UserCredential) (AuthenticationC
 	return AuthenticationCredential{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+	}, nil
+}
+
+func (sv *UserServices) GetUserInfo(email string) (User, error) {
+	ctx := context.Background()
+	user, err := sv.repository.GetUserByEmail(ctx, email)
+
+	if err != nil {
+		return User{}, errors.New("user not found")
+	}
+
+	return User{
+		FirstName: user.FirstName.String,
+		LastName:  user.LastName.String,
+		Email:     user.Email,
 	}, nil
 }

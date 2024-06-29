@@ -58,7 +58,7 @@ func TestCreateNewUser(t *testing.T) {
 
 		mockRepository.On("GetUserByEmail", mock.Anything, "existing@example.com").Return(db.User{}, nil)
 
-		result, err := sv.CreateNewUser(NewUser{Email: "existing@example.com", Password: "password"})
+		result, err := sv.CreateNewUser(User{Email: "existing@example.com", Password: "password"})
 
 		assert.Nil(t, err)
 		assert.False(t, result)
@@ -71,7 +71,7 @@ func TestCreateNewUser(t *testing.T) {
 		mockRepository.On("GetUserByEmail", mock.Anything, "new@example.com").Return(db.User{}, errors.New("user not found"))
 		mockRepository.On("CreateUser", mock.Anything, mock.Anything).Return(int32(0), errors.New("create user error"))
 
-		result, err := sv.CreateNewUser(NewUser{Email: "new@example.com", Password: "password"})
+		result, err := sv.CreateNewUser(User{Email: "new@example.com", Password: "password"})
 
 		assert.NotNil(t, err)
 		assert.False(t, result)
@@ -85,7 +85,7 @@ func TestCreateNewUser(t *testing.T) {
 		mockRepository.On("CreateUser", mock.Anything, mock.Anything).Return(int32(1), nil)
 		mockRepository.On("CreateUserCredential", mock.Anything, mock.Anything).Return(errors.New("create user credential error"))
 
-		result, err := sv.CreateNewUser(NewUser{Email: "new@example.com", Password: "password"})
+		result, err := sv.CreateNewUser(User{Email: "new@example.com", Password: "password"})
 
 		assert.NotNil(t, err)
 		assert.False(t, result)
@@ -99,7 +99,7 @@ func TestCreateNewUser(t *testing.T) {
 		mockRepository.On("CreateUser", mock.Anything, mock.Anything).Return(int32(1), nil)
 		mockRepository.On("CreateUserCredential", mock.Anything, mock.Anything).Return(nil)
 
-		result, err := sv.CreateNewUser(NewUser{Email: "new@example.com", Password: "password"})
+		result, err := sv.CreateNewUser(User{Email: "new@example.com", Password: "password"})
 
 		assert.Nil(t, err)
 		assert.True(t, result)

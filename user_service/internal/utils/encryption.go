@@ -1,17 +1,14 @@
 package utils
 
 import (
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
-)
 
-type Claims struct {
-	Email string `json:"email"`
-	jwt.RegisteredClaims
-}
+	configs "github.com/sweetloveinyourheart/miro-whiteboard/common/configs"
+	types "github.com/sweetloveinyourheart/miro-whiteboard/common/types"
+)
 
 func HashPassword(password string) (string, error) {
 	// GenerateFromPassword creates a hashed password with a default cost
@@ -30,10 +27,10 @@ func CheckPasswordHash(password, hashedPassword string) bool {
 
 // Generate JWT tokens
 func GenerateToken(email string, expirationTime time.Duration) (string, error) {
-	jwtSecret := os.Getenv("JWT_SECRET")
+	jwtSecret := configs.GetAuthConfig().JwtSecret
 
 	expiration := time.Now().Add(expirationTime)
-	claims := &Claims{
+	claims := &types.Claims{
 		Email: email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiration),

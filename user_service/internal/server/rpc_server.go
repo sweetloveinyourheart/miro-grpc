@@ -20,7 +20,7 @@ func CreateUserServer(db *sql.DB) *Server {
 }
 
 func (s *Server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
-	newUser := services.NewUser{
+	newUser := services.User{
 		FirstName: in.Email,
 		LastName:  in.LastName,
 		Email:     in.Email,
@@ -68,6 +68,21 @@ func (s *Server) SignIn(ctx context.Context, in *pb.SignInRequest) (*pb.SignInRe
 	response := pb.SignInResponse{
 		AccessToken:  credentials.AccessToken,
 		RefreshToken: credentials.RefreshToken,
+	}
+
+	return &response, nil
+}
+
+func (s *Server) GetProfile(ctx context.Context, in *pb.GetProfileRequest) (*pb.ProfileResponse, error) {
+	user, err := s.svc.GetUserInfo(in.Email)
+	if err != nil {
+		return &pb.ProfileResponse{}, err
+	}
+
+	response := pb.ProfileResponse{
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
 	}
 
 	return &response, nil
