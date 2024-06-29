@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"errors"
 	"testing"
@@ -15,6 +16,16 @@ import (
 type MockRepository struct {
 	mock.Mock
 }
+
+// Mocking the utility functions
+var (
+	CheckPasswordHashMock = func(password, hash string) bool {
+		return true
+	}
+	GenerateTokenMock = func(email string, duration time.Duration) (string, error) {
+		return "mockedToken", nil
+	}
+)
 
 func (m *MockRepository) GetUserByEmail(ctx context.Context, email string) (db.User, error) {
 	args := m.Called(ctx, email)
@@ -103,6 +114,26 @@ func TestCreateNewUser(t *testing.T) {
 
 		assert.Nil(t, err)
 		assert.True(t, result)
+		mockRepository.AssertExpectations(t)
+	})
+}
+
+func TestUserLogin(t *testing.T) {
+	mockRepository := new(MockRepository)
+	sv := &UserServices{
+		db:         &sql.DB{}, // Dummy DB, can be nil
+		repository: mockRepository,
+	}
+
+	t.Run("Check user's credentials fails", func(t *testing.T) {
+		mockRepository.SetupTest(t)
+
+		mockRepository.On("GetUserInfoWithCredentials", mock.Anything, "new@example.com").Return(db.GetUserInfoWithCredentialsRow{}, errors.New("email or password is not valid"))
+
+		result, err := sv.GetAuthCredentials(UserCredential{Email: "new@example.com", Password: "password"})
+
+		assert.NotNil(t, err)
+		assert.Equal(t, result, AuthenticationCredential{})
 		mockRepository.AssertExpectations(t)
 	})
 }
