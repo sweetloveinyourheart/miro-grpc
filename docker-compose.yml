@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   user_service_db:
     image: postgres:latest
@@ -17,9 +15,23 @@ services:
     networks:
       - miro-whiteboard-network
 
+  board_service_db:
+    image: mongo:latest
+    container_name: board_service_db
+    ports:
+      - 42005:27017
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    networks:
+      - miro-whiteboard-network
+
 networks:
   miro-whiteboard-network:
     driver: bridge
 
 volumes:
   user-service-data:
+  mongo-data:
