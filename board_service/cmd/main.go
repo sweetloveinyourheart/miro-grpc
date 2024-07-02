@@ -8,9 +8,12 @@ import (
 	"net"
 
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/sweetloveinyourheart/miro-whiteboard/board_service/db"
-	"github.com/sweetloveinyourheart/miro-whiteboard/common/configs"
 	"google.golang.org/grpc"
+
+	"github.com/sweetloveinyourheart/miro-whiteboard/board_service/db"
+	"github.com/sweetloveinyourheart/miro-whiteboard/board_service/internal/server"
+	pb "github.com/sweetloveinyourheart/miro-whiteboard/common/api"
+	"github.com/sweetloveinyourheart/miro-whiteboard/common/configs"
 )
 
 func main() {
@@ -26,6 +29,8 @@ func main() {
 	}
 
 	s := grpc.NewServer()
+	svc := server.CreateUserServer()
+	pb.RegisterBoardServiceServer(s, svc)
 
 	log.Printf("server listening at %v", lis.Addr())
 

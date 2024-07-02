@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "github.com/Sweetloveinyourheart/miro-whiteboard-grpc/protoc";
+
+service BoardService {
+    rpc CreateBoard(CreateBoardRequest) returns (CreateBoardResponse) {} 
+}
+
+message CreateBoardRequest {
+    string title = 1;
+    string description = 2;
+}
+
+message CreateBoardResponse {
+    bool success = 1;
+    string message = 2;
+}
