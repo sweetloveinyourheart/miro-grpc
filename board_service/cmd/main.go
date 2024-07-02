@@ -10,7 +10,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 	"google.golang.org/grpc"
 
-	"github.com/sweetloveinyourheart/miro-whiteboard/board_service/db"
+	"github.com/sweetloveinyourheart/miro-whiteboard/board_service/internal/db"
 	"github.com/sweetloveinyourheart/miro-whiteboard/board_service/internal/server"
 	pb "github.com/sweetloveinyourheart/miro-whiteboard/common/api"
 	"github.com/sweetloveinyourheart/miro-whiteboard/common/configs"
@@ -29,7 +29,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	svc := server.CreateUserServer()
+	svc := server.CreateUserServer(mongoClient)
 	pb.RegisterBoardServiceServer(s, svc)
 
 	log.Printf("server listening at %v", lis.Addr())

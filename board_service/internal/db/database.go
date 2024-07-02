@@ -9,6 +9,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const (
+	BoardDatabase string = "board_service_db"
+)
+
 func InitMongoConnection() *mongo.Client {
 	uri := os.Getenv("MONGODB_URI")
 	if uri == "" {
