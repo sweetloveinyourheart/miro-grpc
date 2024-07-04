@@ -6,6 +6,7 @@ import (
 
 	"github.com/sweetloveinyourheart/miro-whiteboard/board_service/internal/db"
 	"github.com/sweetloveinyourheart/miro-whiteboard/board_service/internal/schemas"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -16,6 +17,7 @@ type BoardService struct {
 
 type IBoardService interface {
 	CreateBoard(newBoard BoardInfo) (bool, error)
+	GetBoardById(boardId string) (schemas.BoardSchema, error)
 }
 
 func NewBoardService(client *mongo.Client) IBoardService {
@@ -50,4 +52,18 @@ func (s *BoardService) CreateBoard(board BoardInfo) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (s *BoardService) GetBoardById(boardId string) (schemas.BoardSchema, error) {
+	coll := s.db.Collection(schemas.BoardCollection)
+
+	filter := bson.D{{Key: "_id", Value: boardId}}
+
+	var result schemas.BoardSchema
+	err := coll.FindOne(context.TODO(), filter).Decode(&result)
+	if err != nil {
+		return schemas.BoardSchema{}, err
+	}
+
+	return result, nil
 }
