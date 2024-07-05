@@ -45,3 +45,7 @@ func (s *Server) CreateBoard(ctx context.Context, in *pb.CreateBoardRequest) (*p
 
 	return &response, nil
 }
+
+func GetBoard() {}
+
+func DeleteBoard() {}
