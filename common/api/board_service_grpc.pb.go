@@ -22,7 +22,12 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BoardServiceClient interface {
+	// Creates a new board.
 	CreateBoard(ctx context.Context, in *CreateBoardRequest, opts ...grpc.CallOption) (*CreateBoardResponse, error)
+	// Retrieves a board by its ID.
+	GetBoardById(ctx context.Context, in *GetBoardByIdRequest, opts ...grpc.CallOption) (*BoardResponse, error)
+	// Deletes a board by its ID.
+	DeleteBoard(ctx context.Context, in *DeleteBoardRequest, opts ...grpc.CallOption) (*DeleteBoardResponse, error)
 }
 
 type boardServiceClient struct {
@@ -42,11 +47,34 @@ func (c *boardServiceClient) CreateBoard(ctx context.Context, in *CreateBoardReq
 	return out, nil
 }
 
+func (c *boardServiceClient) GetBoardById(ctx context.Context, in *GetBoardByIdRequest, opts ...grpc.CallOption) (*BoardResponse, error) {
+	out := new(BoardResponse)
+	err := c.cc.Invoke(ctx, "/BoardService/GetBoardById", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *boardServiceClient) DeleteBoard(ctx context.Context, in *DeleteBoardRequest, opts ...grpc.CallOption) (*DeleteBoardResponse, error) {
+	out := new(DeleteBoardResponse)
+	err := c.cc.Invoke(ctx, "/BoardService/DeleteBoard", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BoardServiceServer is the server API for BoardService service.
 // All implementations must embed UnimplementedBoardServiceServer
 // for forward compatibility
 type BoardServiceServer interface {
+	// Creates a new board.
 	CreateBoard(context.Context, *CreateBoardRequest) (*CreateBoardResponse, error)
+	// Retrieves a board by its ID.
+	GetBoardById(context.Context, *GetBoardByIdRequest) (*BoardResponse, error)
+	// Deletes a board by its ID.
+	DeleteBoard(context.Context, *DeleteBoardRequest) (*DeleteBoardResponse, error)
 	mustEmbedUnimplementedBoardServiceServer()
 }
 
@@ -56,6 +84,12 @@ type UnimplementedBoardServiceServer struct {
 
 func (UnimplementedBoardServiceServer) CreateBoard(context.Context, *CreateBoardRequest) (*CreateBoardResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateBoard not implemented")
+}
+func (UnimplementedBoardServiceServer) GetBoardById(context.Context, *GetBoardByIdRequest) (*BoardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBoardById not implemented")
+}
+func (UnimplementedBoardServiceServer) DeleteBoard(context.Context, *DeleteBoardRequest) (*DeleteBoardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBoard not implemented")
 }
 func (UnimplementedBoardServiceServer) mustEmbedUnimplementedBoardServiceServer() {}
 
@@ -88,6 +122,42 @@ func _BoardService_CreateBoard_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BoardService_GetBoardById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBoardByIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BoardServiceServer).GetBoardById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/BoardService/GetBoardById",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BoardServiceServer).GetBoardById(ctx, req.(*GetBoardByIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BoardService_DeleteBoard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteBoardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BoardServiceServer).DeleteBoard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/BoardService/DeleteBoard",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BoardServiceServer).DeleteBoard(ctx, req.(*DeleteBoardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BoardService_ServiceDesc is the grpc.ServiceDesc for BoardService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +168,14 @@ var BoardService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateBoard",
 			Handler:    _BoardService_CreateBoard_Handler,
+		},
+		{
+			MethodName: "GetBoardById",
+			Handler:    _BoardService_GetBoardById_Handler,
+		},
+		{
+			MethodName: "DeleteBoard",
+			Handler:    _BoardService_DeleteBoard_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
