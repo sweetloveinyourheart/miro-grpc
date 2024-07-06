@@ -46,6 +46,44 @@ func (s *Server) CreateBoard(ctx context.Context, in *pb.CreateBoardRequest) (*p
 	return &response, nil
 }
 
-func GetBoard() {}
+func (s *Server) GetBoardById(ctx context.Context, in *pb.GetBoardByIdRequest) (*pb.BoardResponse, error) {
+	user, err := utils.GetAuthorizedUser(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("unauthorized")
+	}
 
-func DeleteBoard() {}
+	board, err := s.svc.GetBoardById(user, in.Id)
+	if err != nil {
+		return nil, fmt.Errorf(err.Error())
+	}
+
+	response := pb.BoardResponse{
+		Id:          board.ID.String(),
+		Title:       board.Title,
+		Description: board.Description,
+		CreatedBy:   board.CreatedBy,
+		CreatedAt:   board.CreatedAt,
+		UpdatedAt:   board.UpdatedAt,
+	}
+
+	return &response, nil
+}
+
+func (s *Server) DeleteBoard(ctx context.Context, in *pb.DeleteBoardRequest) (*pb.DeleteBoardResponse, error) {
+	user, err := utils.GetAuthorizedUser(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("unauthorized")
+	}
+
+	success, err := s.svc.DeleteBoard(user, in.Id)
+	if err != nil {
+		return nil, fmt.Errorf(err.Error())
+	}
+
+	response := pb.DeleteBoardResponse{
+		Success: success,
+		Message: "board deleted",
+	}
+
+	return &response, nil
+}
