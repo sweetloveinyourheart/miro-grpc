@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/sweetloveinyourheart/miro-whiteboard/board_service/internal/services"
-	"github.com/sweetloveinyourheart/miro-whiteboard/board_service/internal/utils"
 	pb "github.com/sweetloveinyourheart/miro-whiteboard/common/api"
+	"github.com/sweetloveinyourheart/miro-whiteboard/common/utils"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
