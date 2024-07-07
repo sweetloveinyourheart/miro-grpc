@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/sweetloveinyourheart/miro-whiteboard/board_service/internal/db"
@@ -17,7 +18,8 @@ type BoardService struct {
 
 type IBoardService interface {
 	CreateBoard(newBoard BoardInfo) (bool, error)
-	GetBoardById(boardId string) (schemas.BoardSchema, error)
+	GetBoardById(user string, boardId string) (schemas.BoardSchema, error)
+	DeleteBoard(user string, boardId string) (bool, error)
 }
 
 func NewBoardService(client *mongo.Client) IBoardService {
@@ -54,10 +56,10 @@ func (s *BoardService) CreateBoard(board BoardInfo) (bool, error) {
 	return true, nil
 }
 
-func (s *BoardService) GetBoardById(boardId string) (schemas.BoardSchema, error) {
+func (s *BoardService) GetBoardById(user string, boardId string) (schemas.BoardSchema, error) {
 	coll := s.db.Collection(schemas.BoardCollection)
 
-	filter := bson.D{{Key: "_id", Value: boardId}}
+	filter := bson.D{{Key: "_id", Value: boardId}, {Key: "created_by", Value: user}}
 
 	var result schemas.BoardSchema
 	err := coll.FindOne(context.TODO(), filter).Decode(&result)
@@ -66,4 +68,31 @@ func (s *BoardService) GetBoardById(boardId string) (schemas.BoardSchema, error)
 	}
 
 	return result, nil
+}
+
+func (s *BoardService) DeleteBoard(user string, boardId string) (bool, error) {
+	coll := s.db.Collection(schemas.BoardCollection)
+
+	filter := bson.D{{Key: "_id", Value: boardId}}
+
+	var board schemas.BoardSchema
+	err := coll.FindOne(context.TODO(), filter).Decode(board)
+	if err != nil {
+		return false, errors.New("board not found")
+	}
+
+	if board.CreatedBy != user {
+		return false, errors.New("cannot delete a board which is not your own")
+	}
+
+	result, err := coll.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		return false, err
+	}
+
+	if result.DeletedCount < 1 {
+		return false, errors.New("failed to delete board")
+	}
+
+	return true, nil
 }
