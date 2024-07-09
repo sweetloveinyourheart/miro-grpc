@@ -32,7 +32,7 @@ func (h *UserHandler) Register(ctx *fiber.Ctx) error {
 	var newUser requests.RegisterRequestData
 	unMarshalErr := json.Unmarshal(ctx.Body(), &newUser)
 	if unMarshalErr != nil {
-		return ctx.Status(400).JSON(responses.RegisterResponseData{
+		return ctx.Status(400).JSON(responses.AppResponse{
 			Success: false,
 			Message: fiber.ErrBadRequest.Error(),
 		})
@@ -41,7 +41,7 @@ func (h *UserHandler) Register(ctx *fiber.Ctx) error {
 	// Validate request body
 	if errs := utils.Validate(newUser); len(errs) > 0 && errs[0].Error {
 		validationMessage := utils.CreateValidationMessage(errs)
-		return ctx.Status(400).JSON(responses.RegisterResponseData{
+		return ctx.Status(400).JSON(responses.AppResponse{
 			Success: false,
 			Message: validationMessage,
 		})
@@ -59,7 +59,7 @@ func (h *UserHandler) Register(ctx *fiber.Ctx) error {
 		return fiber.ErrInternalServerError
 	}
 
-	response := responses.RegisterResponseData{
+	response := responses.AppResponse{
 		Success: result.Success,
 		Message: result.Message,
 	}
@@ -71,7 +71,7 @@ func (h *UserHandler) SignIn(ctx *fiber.Ctx) error {
 	var userCredential requests.SignInRequestData
 	unMarshalErr := json.Unmarshal(ctx.Body(), &userCredential)
 	if unMarshalErr != nil {
-		return ctx.Status(400).JSON(responses.RegisterResponseData{
+		return ctx.Status(400).JSON(responses.AppResponse{
 			Success: false,
 			Message: fiber.ErrBadRequest.Error(),
 		})
@@ -80,7 +80,7 @@ func (h *UserHandler) SignIn(ctx *fiber.Ctx) error {
 	// Validate request body
 	if errs := utils.Validate(userCredential); len(errs) > 0 && errs[0].Error {
 		validationMessage := utils.CreateValidationMessage(errs)
-		return ctx.Status(400).JSON(responses.RegisterResponseData{
+		return ctx.Status(400).JSON(responses.AppResponse{
 			Success: false,
 			Message: validationMessage,
 		})
@@ -93,7 +93,7 @@ func (h *UserHandler) SignIn(ctx *fiber.Ctx) error {
 	grpcContext := context.Background()
 	result, grpcErr := h.c.SignIn(grpcContext, &grpcData)
 	if grpcErr != nil {
-		return ctx.Status(401).JSON(responses.ErrorResponseData{
+		return ctx.Status(401).JSON(responses.AppResponse{
 			Success: false,
 			Message: grpcErr.Error(),
 		})
