@@ -14,15 +14,21 @@ func main() {
 	v1Routers := app.Group("/api/v1")
 
 	// Create gRPC clients
-	userServiceClient, userServiceConn, err := clients.NewUserServiceClient()
+	userServiceClient, userServiceConn, userServiceErr := clients.NewUserServiceClient()
 	defer userServiceConn.Close()
+	if userServiceErr != nil {
+		log.Fatalf("Failed to establish connection with user service, error: %s", userServiceErr.Error())
+	}
 
-	if err != nil {
-		log.Fatalf("Failed to establish connection with other service, error: %s", err.Error())
+	boardServiceClient, boardServiceConn, boardServiceErr := clients.NewBoardServiceClient()
+	defer boardServiceConn.Close()
+	if boardServiceErr != nil {
+		log.Fatalf("Failed to establish connection with board service, error: %s", userServiceErr.Error())
 	}
 
 	// Create routers
 	routers.CreateUserRouters(v1Routers, &userServiceClient)
+	routers.CreateBoardRouters(v1Routers, &boardServiceClient)
 
 	app.Listen(":9000")
 }
