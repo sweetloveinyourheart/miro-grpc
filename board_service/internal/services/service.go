@@ -8,6 +8,7 @@ import (
 	"github.com/sweetloveinyourheart/miro-whiteboard/board_service/internal/db"
 	"github.com/sweetloveinyourheart/miro-whiteboard/board_service/internal/schemas"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -41,6 +42,7 @@ func (s *BoardService) CreateBoard(board BoardInfo) (bool, error) {
 	coll := s.db.Collection(schemas.BoardCollection)
 
 	newBoard := schemas.BoardSchema{
+		ID:          primitive.NewObjectID(),
 		Title:       board.Title,
 		Description: board.Description,
 		CreatedBy:   board.CreatedBy,
