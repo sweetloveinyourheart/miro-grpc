@@ -19,7 +19,7 @@ type UserServices struct {
 type IUserServices interface {
 	CreateNewUser(newUser User) (bool, error)
 	GetAuthCredentials(user UserCredential) (AuthenticationCredential, error)
-	GetUserInfo(email string) (User, error)
+	GetUserInfo(userId int32) (User, error)
 }
 
 func CreateUserService(db *sql.DB) IUserServices {
@@ -96,12 +96,12 @@ func (sv *UserServices) GetAuthCredentials(user UserCredential) (AuthenticationC
 		return AuthenticationCredential{}, errors.New("email or password is not valid")
 	}
 
-	accessToken, err := utils.GenerateToken(user.Email, 15*time.Minute)
+	accessToken, err := utils.GenerateToken(userInfo.UserID, user.Email, 15*time.Minute)
 	if err != nil {
 		return AuthenticationCredential{}, errors.New("failed to generate access token")
 	}
 
-	refreshToken, err := utils.GenerateToken(user.Email, 7*24*time.Hour) // Refresh token valid for 7 days
+	refreshToken, err := utils.GenerateToken(userInfo.UserID, user.Email, 7*24*time.Hour) // Refresh token valid for 7 days
 	if err != nil {
 		return AuthenticationCredential{}, errors.New("failed to generate refresh token")
 	}
@@ -112,9 +112,10 @@ func (sv *UserServices) GetAuthCredentials(user UserCredential) (AuthenticationC
 	}, nil
 }
 
-func (sv *UserServices) GetUserInfo(email string) (User, error) {
+func (sv *UserServices) GetUserInfo(userId int32) (User, error) {
 	ctx := context.Background()
-	user, err := sv.repository.GetUserByEmail(ctx, email)
+
+	user, err := sv.repository.GetUser(ctx, userId)
 
 	if err != nil {
 		return User{}, errors.New("user not found")

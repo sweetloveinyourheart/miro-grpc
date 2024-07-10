@@ -1,6 +1,8 @@
 package middlewares
 
 import (
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 
@@ -16,8 +18,9 @@ func AuthGuard(ctx *fiber.Ctx) error {
 	}
 
 	claims := credentials.Claims.(jwt.MapClaims)
-	email := claims["email"].(string)
-	ctx.Request().Header.Set("user", email)
+	userId := claims["user_id"].(float64)
+
+	ctx.Request().Header.Set("user", strconv.FormatFloat(userId, 'f', 0, 64))
 
 	return ctx.Next()
 }

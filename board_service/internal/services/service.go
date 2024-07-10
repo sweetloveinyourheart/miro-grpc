@@ -18,8 +18,8 @@ type BoardService struct {
 
 type IBoardService interface {
 	CreateBoard(newBoard BoardInfo) (bool, error)
-	GetBoardById(user string, boardId string) (schemas.BoardSchema, error)
-	DeleteBoard(user string, boardId string) (bool, error)
+	GetBoardById(userId int32, boardId string) (schemas.BoardSchema, error)
+	DeleteBoard(userId int32, boardId string) (bool, error)
 }
 
 func NewBoardService(client *mongo.Client) IBoardService {
@@ -34,7 +34,7 @@ func NewBoardService(client *mongo.Client) IBoardService {
 type BoardInfo struct {
 	Title       string
 	Description string
-	CreatedBy   string
+	CreatedBy   int32
 }
 
 func (s *BoardService) CreateBoard(board BoardInfo) (bool, error) {
@@ -56,10 +56,10 @@ func (s *BoardService) CreateBoard(board BoardInfo) (bool, error) {
 	return true, nil
 }
 
-func (s *BoardService) GetBoardById(user string, boardId string) (schemas.BoardSchema, error) {
+func (s *BoardService) GetBoardById(userId int32, boardId string) (schemas.BoardSchema, error) {
 	coll := s.db.Collection(schemas.BoardCollection)
 
-	filter := bson.D{{Key: "_id", Value: boardId}, {Key: "created_by", Value: user}}
+	filter := bson.D{{Key: "_id", Value: boardId}, {Key: "created_by", Value: userId}}
 
 	var result schemas.BoardSchema
 	err := coll.FindOne(context.TODO(), filter).Decode(&result)
@@ -70,7 +70,7 @@ func (s *BoardService) GetBoardById(user string, boardId string) (schemas.BoardS
 	return result, nil
 }
 
-func (s *BoardService) DeleteBoard(user string, boardId string) (bool, error) {
+func (s *BoardService) DeleteBoard(userId int32, boardId string) (bool, error) {
 	coll := s.db.Collection(schemas.BoardCollection)
 
 	filter := bson.D{{Key: "_id", Value: boardId}}
@@ -81,7 +81,7 @@ func (s *BoardService) DeleteBoard(user string, boardId string) (bool, error) {
 		return false, errors.New("board not found")
 	}
 
-	if board.CreatedBy != user {
+	if board.CreatedBy != userId {
 		return false, errors.New("cannot delete a board which is not your own")
 	}
 

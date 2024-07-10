@@ -20,7 +20,7 @@ func main() {
 	mongoClient := db.InitMongoConnection()
 	defer mongoClient.Disconnect(context.TODO())
 
-	serverPost := configs.GetGRPCConfig().UserServicePort
+	serverPost := configs.GetGRPCConfig().BoardServicePort
 
 	flag.Parse()
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", serverPost))

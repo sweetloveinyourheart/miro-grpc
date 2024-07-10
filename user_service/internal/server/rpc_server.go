@@ -74,7 +74,7 @@ func (s *Server) SignIn(ctx context.Context, in *pb.SignInRequest) (*pb.SignInRe
 }
 
 func (s *Server) GetProfile(ctx context.Context, in *pb.GetProfileRequest) (*pb.ProfileResponse, error) {
-	user, err := s.svc.GetUserInfo(in.Email)
+	user, err := s.svc.GetUserInfo(in.UserId)
 	if err != nil {
 		return &pb.ProfileResponse{}, err
 	}

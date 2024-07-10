@@ -10,7 +10,8 @@ import (
 )
 
 type Claims struct {
-	Email string `json:"email"`
+	Email  string `json:"email"`
+	UserId int32  `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
@@ -30,12 +31,13 @@ func CheckPasswordHash(password, hashedPassword string) bool {
 }
 
 // Generate JWT tokens
-func GenerateToken(email string, expirationTime time.Duration) (string, error) {
+func GenerateToken(userId int32, email string, expirationTime time.Duration) (string, error) {
 	jwtSecret := configs.GetAuthConfig().JwtSecret
 
 	expiration := time.Now().Add(expirationTime)
 	claims := &Claims{
-		Email: email,
+		Email:  email,
+		UserId: userId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiration),
 		},

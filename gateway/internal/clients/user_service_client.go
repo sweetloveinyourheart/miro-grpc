@@ -13,7 +13,7 @@ import (
 func NewUserServiceClient() (pb.UserServiceClient, *grpc.ClientConn, error) {
 	// Set up a connection to the server.
 	serverPost := configs.GetGRPCConfig().UserServicePort
-	addr := flag.String("addr", fmt.Sprintf("localhost:%d", serverPost), "the address to connect to")
+	addr := flag.String("user_service_addr", fmt.Sprintf("localhost:%d", serverPost), "the address to connect to")
 
 	conn, err := grpc.NewClient(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 

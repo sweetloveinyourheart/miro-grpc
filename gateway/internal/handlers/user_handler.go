@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	pb "github.com/sweetloveinyourheart/miro-whiteboard/common/api"
@@ -107,11 +108,15 @@ func (h *UserHandler) SignIn(ctx *fiber.Ctx) error {
 }
 
 func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
-	user := ctx.Get("user")
+	userCtx := ctx.Get("user")
+	userId, err := strconv.ParseInt(userCtx, 10, 32)
+	if err != nil {
+		return ctx.SendStatus(403)
+	}
 
 	grpcContext := context.Background()
 	grpcReq := pb.GetProfileRequest{
-		Email: user,
+		UserId: int32(userId),
 	}
 	grpcRes, err := h.c.GetProfile(grpcContext, &grpcReq)
 	if err != nil {

@@ -13,7 +13,7 @@ import (
 func NewBoardServiceClient() (pb.BoardServiceClient, *grpc.ClientConn, error) {
 	// Set up a connection to the server.
 	serverPost := configs.GetGRPCConfig().BoardServicePort
-	addr := flag.String("addr", fmt.Sprintf("localhost:%d", serverPost), "the address to connect to")
+	addr := flag.String("board_service_addr", fmt.Sprintf("localhost:%d", serverPost), "the address to connect to")
 
 	conn, err := grpc.NewClient(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
