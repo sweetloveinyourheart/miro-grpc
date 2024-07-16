@@ -16,6 +16,8 @@ type BoardHandler struct {
 
 type IBoardHandler interface {
 	CreateBoard(ctx *fiber.Ctx) error
+	GetBoardById(ctx *fiber.Ctx) error
+	DeleteBoard(ctx *fiber.Ctx) error
 }
 
 func NewBoardHandler(client *pb.BoardServiceClient) IBoardHandler {
@@ -45,11 +47,11 @@ func (h *BoardHandler) CreateBoard(ctx *fiber.Ctx) error {
 		})
 	}
 
+	grpcContext := utils.CreateAuthContext(user)
 	grpcData := pb.CreateBoardRequest{
 		Title:       newBoard.Title,
 		Description: newBoard.Description,
 	}
-	grpcContext := utils.CreateAuthContext(user)
 	result, grpcErr := h.c.CreateBoard(grpcContext, &grpcData)
 	if grpcErr != nil {
 		return fiber.ErrInternalServerError
@@ -60,4 +62,66 @@ func (h *BoardHandler) CreateBoard(ctx *fiber.Ctx) error {
 		Message: result.Message,
 	}
 	return ctx.Status(201).JSON(response)
+}
+
+func (h *BoardHandler) GetBoardById(ctx *fiber.Ctx) error {
+	user := ctx.Get("user")
+
+	id := ctx.Params("id")
+	if id == "" {
+		return ctx.Status(400).JSON(responses.AppResponse{
+			Success: false,
+			Message: "Bad request",
+		})
+	}
+
+	grpcContext := utils.CreateAuthContext(user)
+	grpcData := pb.GetBoardByIdRequest{Id: id}
+	result, grpcErr := h.c.GetBoardById(grpcContext, &grpcData)
+
+	if grpcErr != nil {
+		return ctx.Status(404).JSON(responses.AppResponse{
+			Success: false,
+			Message: grpcErr.Error(),
+		})
+	}
+
+	response := responses.BoardResponseData{
+		ID:          result.Id,
+		Title:       result.Title,
+		Description: result.Description,
+		CreatedBy:   result.CreatedBy,
+		CreatedAt:   result.CreatedAt,
+		UpdatedAt:   result.UpdatedAt,
+	}
+	return ctx.Status(201).JSON(response)
+}
+
+func (h *BoardHandler) DeleteBoard(ctx *fiber.Ctx) error {
+	user := ctx.Get("user")
+
+	id := ctx.Params("id")
+	if id == "" {
+		return ctx.Status(400).JSON(responses.AppResponse{
+			Success: false,
+			Message: "Bad request",
+		})
+	}
+
+	grpcContext := utils.CreateAuthContext(user)
+	grpcData := pb.DeleteBoardRequest{Id: id}
+
+	result, grpcErr := h.c.DeleteBoard(grpcContext, &grpcData)
+	if grpcErr != nil {
+		return ctx.Status(404).JSON(responses.AppResponse{
+			Success: false,
+			Message: grpcErr.Error(),
+		})
+	}
+
+	response := responses.AppResponse{
+		Success: result.Success,
+		Message: result.Message,
+	}
+	return ctx.Status(200).JSON(response)
 }
